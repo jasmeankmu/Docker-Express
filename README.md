@@ -1,6 +1,6 @@
 # nginx,nodejs,mysql 도커
 
-<img src="./image.jpg"/>
+<img src="./image.png"/>
 
 ## 숙제
 - 영상을보고 환경 구축한 사진찍기
