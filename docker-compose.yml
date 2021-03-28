@@ -1,0 +1,75 @@
+# 도커 컴포즈의 스키마 버전입니다. 이 스키마 버전은 docker의 버전에 따라 지원되는 버전이 달라집니다.
+# 되도록 최근의 버전을 사용하는 것이 좋습니다.
+version: '3'
+
+# 애플리케이션의 일부로 실행하려는 서비스 목록을 정의 합니다.
+# 서비스 이름은 임의로 선택 할 수 있습니다.
+# 저는 이전글의 도커 파일로 생성했던 이미지를 한번 사용해 보았습니다.
+services:
+  nginx:
+    build:
+     # context: 빌드 명령을 실행할 디렉터리 경로
+      context: ./nginx
+    container_name: nginx
+    entrypoint: dockerize -wait tcp://node:3000 -timeout 5m
+    command: [ 'nginx', '-g', 'daemon off;' ]
+    # 네트워크 모드를 설정할 수 있습니다. 기본적으로는 도커안의 내부 네트워크를 사용하게 됩니다.
+    networks:
+      - node_nginx
+    # 의존 관계 설정
+    depends_on:
+      - node
+    # - 로 여러개의 포트를 노출 시킬 수 있습니다
+    ports:
+      - 80:80
+    restart: "unless-stopped"
+  node:
+    build:
+      context: ./node
+    container_name: node
+    volumes:
+      - ./node/:/usr/src/app/
+      - /usr/src/app/node_modules/
+    entrypoint: dockerize -wait tcp://mysql:3306 -timeout 5m
+    command: tail -f /dev/null
+    # command:  ["pm2-runtime", "app.js","--watch"]
+    networks:
+      - node_nginx
+      - node_mysql
+      - node_redis
+    depends_on:
+      - mysql
+      - redis
+    restart: "unless-stopped"
+  mysql:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: mysql
+    restart: always
+    # 마운트 할 볼륨입니다. 
+    volumes:
+      - ./mysql:/var/lib/mysql
+    #mysql 환결설정
+    environment:
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+      
+    ports:
+      - 3306:3306
+    networks:
+      - node_mysql
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - 3307:3307
+    networks: 
+      - node_redis
+      
+networks:
+  node_nginx:
+    driver: bridge
+  node_mysql:
+    driver: bridge
+  node_redis:
+    driver: bridge
