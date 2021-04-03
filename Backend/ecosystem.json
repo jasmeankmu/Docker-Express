@@ -1,0 +1,13 @@
+{
+    "apps": [{
+      "name": "ExpressBack",
+      "script": "app.js",
+      "watch": true,
+      "env": {
+        "NODE_ENV": "development",
+        "API_PORT": 3000
+      },
+      "exec_mode": "cluster",
+      "instances": 0
+    }]
+  }

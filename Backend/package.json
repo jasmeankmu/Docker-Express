@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "pm2 start app.js --watch"
+    "dev": "pm2 start ecosystem.json"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",

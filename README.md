@@ -109,3 +109,5 @@ yarn sequelize-auto -o "./models" -d DB이름 -h mysql -u root -p 3306 -x root -
 - mysql : ip: localhost , port 3306
 
 
+
+

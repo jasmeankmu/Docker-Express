@@ -1,8 +1,8 @@
 FROM node:15
 
-WORKDIR /usr/src/app
+WORKDIR /usr/src/app/Backend
 
-LABEL "purpose"="webdev"
+LABEL "purpose"="expressDev"
 
 RUN apt-get update && apt-get install -y wget
 

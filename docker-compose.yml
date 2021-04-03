@@ -10,7 +10,7 @@ services:
     build:
      # context: 빌드 명령을 실행할 디렉터리 경로
       context: ./nginx
-    container_name: nginx
+    container_name: js_nginx
     entrypoint: dockerize -wait tcp://node:3000 -timeout 5m
     command: [ 'nginx', '-g', 'daemon off;' ]
     # 네트워크 모드를 설정할 수 있습니다. 기본적으로는 도커안의 내부 네트워크를 사용하게 됩니다.
@@ -18,17 +18,17 @@ services:
       - node_nginx
     # 의존 관계 설정
     depends_on:
-      - node
+      - backend
     # - 로 여러개의 포트를 노출 시킬 수 있습니다
     ports:
       - 80:80
     restart: "unless-stopped"
-  node:
+  backend:
     build:
-      context: ./node
-    container_name: node
+      context: ./Backend
+    container_name: backend
     volumes:
-      - ./node/:/usr/src/app/
+      - ./Backend/:/usr/src/app/Backend
       - /usr/src/app/node_modules/
     entrypoint: dockerize -wait tcp://mysql:3306 -timeout 5m
     command: tail -f /dev/null
@@ -41,10 +41,19 @@ services:
       - mysql
       - redis
     restart: "unless-stopped"
+  frontend:
+    build:
+      context: ./Frontend
+    container_name: frontend
+    volumes:
+      - ./Frontend/:/usr/src/app/Frontend
+      - /usr/src/app/node_modules/
+    command: tail -f /dev/null
+    restart: "unless-stopped"
   mysql:
     image: mysql:5.7
     command: --innodb-use-native-aio=0
-    container_name: mysql
+    container_name: js_mysql
     restart: always
     # 마운트 할 볼륨입니다. 
     volumes:
@@ -58,9 +67,10 @@ services:
       - 3306:3306
     networks:
       - node_mysql
+
   redis:
     image: redis:alpine
-    container_name: redis
+    container_name: js_redis
     ports:
       - 3307:3307
     networks: 
